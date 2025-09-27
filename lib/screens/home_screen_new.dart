@@ -30,18 +30,18 @@ class _HomeScreenState extends State<HomeScreen>
       duration: const Duration(milliseconds: 2000),
       vsync: this,
     );
-    
+
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeOut),
     );
-    
+
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.3),
       end: Offset.zero,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
-    
+
     _controller.forward();
-    
+
     // Auto-load data when screen loads
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadInitialData();
@@ -56,8 +56,9 @@ class _HomeScreenState extends State<HomeScreen>
 
   void _loadInitialData() {
     final walletProvider = Provider.of<WalletProvider>(context, listen: false);
-    final portfolioProvider = Provider.of<PortfolioProvider>(context, listen: false);
-    
+    final portfolioProvider =
+        Provider.of<PortfolioProvider>(context, listen: false);
+
     // Auto-refresh portfolio if wallet is connected
     if (walletProvider.isConnected && walletProvider.connectedAddress != null) {
       portfolioProvider.loadPortfolio(walletProvider.connectedAddress!);
@@ -87,8 +88,9 @@ class _HomeScreenState extends State<HomeScreen>
           ColorizeAnimatedText(
             'Portfolio Tracker',
             textStyle: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ) ?? const TextStyle(),
+                      fontWeight: FontWeight.bold,
+                    ) ??
+                const TextStyle(),
             colors: [
               AppTheme.primaryColor,
               AppTheme.secondaryColor,
@@ -221,9 +223,10 @@ class _HomeScreenState extends State<HomeScreen>
               TypewriterAnimatedText(
                 'Welcome to DeFi Portfolio Tracking',
                 textStyle: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ) ?? const TextStyle(),
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ) ??
+                    const TextStyle(),
                 speed: const Duration(milliseconds: 50),
               ),
             ],
@@ -280,7 +283,7 @@ class _HomeScreenState extends State<HomeScreen>
           ...features.asMap().entries.map((entry) {
             final index = entry.key;
             final feature = entry.value;
-            
+
             return AnimationConfiguration.staggeredList(
               position: index,
               duration: const Duration(milliseconds: 375),
@@ -295,7 +298,10 @@ class _HomeScreenState extends State<HomeScreen>
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: Theme.of(context).colorScheme.shadow.withOpacity(0.1),
+                          color: Theme.of(context)
+                              .colorScheme
+                              .shadow
+                              .withOpacity(0.1),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),
@@ -323,14 +329,20 @@ class _HomeScreenState extends State<HomeScreen>
                             children: [
                               Text(
                                 feature['title'] as String,
-                                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleLarge
+                                    ?.copyWith(
                                       fontWeight: FontWeight.bold,
                                     ),
                               ),
                               const SizedBox(height: 4),
                               Text(
                                 feature['description'] as String,
-                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
                                       color: Theme.of(context)
                                           .colorScheme
                                           .onSurface
@@ -502,7 +514,8 @@ class _HomeScreenState extends State<HomeScreen>
           padding: const EdgeInsets.all(20),
           child: Shimmer.fromColors(
             baseColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
-            highlightColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.2),
+            highlightColor:
+                Theme.of(context).colorScheme.onSurface.withOpacity(0.2),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -542,11 +555,12 @@ class _HomeScreenState extends State<HomeScreen>
 
   void _refreshPortfolio() {
     final walletProvider = Provider.of<WalletProvider>(context, listen: false);
-    final portfolioProvider = Provider.of<PortfolioProvider>(context, listen: false);
-    
+    final portfolioProvider =
+        Provider.of<PortfolioProvider>(context, listen: false);
+
     if (walletProvider.connectedAddress != null) {
       portfolioProvider.loadPortfolio(walletProvider.connectedAddress!);
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('Refreshing portfolio...'),
@@ -562,7 +576,7 @@ class _HomeScreenState extends State<HomeScreen>
 
   void _showWalletInfo() {
     final walletProvider = Provider.of<WalletProvider>(context, listen: false);
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
