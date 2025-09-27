@@ -12,15 +12,21 @@ class WalletConnectionWidget extends StatelessWidget {
         return Center(
           child: Padding(
             padding: const EdgeInsets.all(32),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
+            child: SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: MediaQuery.of(context).size.height - 64,
+                ),
+                child: IntrinsicHeight(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
                 Icon(
                   Icons.account_balance_wallet_outlined,
-                  size: 120,
+                  size: 100, // Reduced from 120 to save space
                   color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 24), // Reduced from 32
                 Text(
                   'Connect Your Wallet',
                   style: Theme.of(context).textTheme.headlineMedium,
@@ -75,7 +81,7 @@ class WalletConnectionWidget extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 24), // Reduced from 32
 
                 if (walletProvider.connectionStatus ==
                     WalletConnectionStatus.connecting) ...[
@@ -141,7 +147,7 @@ class WalletConnectionWidget extends StatelessWidget {
                     ),
                   ),
 
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16), // Reduced from 24
 
                   // Manual address input section
                   Row(
@@ -167,7 +173,7 @@ class WalletConnectionWidget extends StatelessWidget {
                     ],
                   ),
 
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16), // Reduced from 24
 
                   SizedBox(
                     width: double.infinity,
@@ -183,7 +189,7 @@ class WalletConnectionWidget extends StatelessWidget {
                   ),
                 ],
 
-                const SizedBox(height: 32),
+                const SizedBox(height: 20), // Reduced from 32
 
                 // Supported networks info
                 Card(
@@ -219,6 +225,9 @@ class WalletConnectionWidget extends StatelessWidget {
                   ),
                 ),
               ],
+                  ),
+                ),
+              ),
             ),
           ),
         );
