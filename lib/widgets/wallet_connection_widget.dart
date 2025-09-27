@@ -187,6 +187,26 @@ class WalletConnectionWidget extends StatelessWidget {
                       ),
                     ),
                   ),
+
+                        const SizedBox(height: 12),
+
+                        // Test wallet section
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton.icon(
+                            onPressed: () => _showTestWallets(context),
+                            icon: const Icon(Icons.science),
+                            label: const Text('Use Demo Wallet (Test Data)'),
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 24, vertical: 16),
+                              backgroundColor: Theme.of(context)
+                                  .colorScheme
+                                  .primaryContainer
+                                  .withOpacity(0.3),
+                            ),
+                          ),
+                        ),
                 ],
 
                 const SizedBox(height: 20), // Reduced from 32
@@ -439,5 +459,136 @@ class WalletConnectionWidget extends StatelessWidget {
     // Check if all characters after 0x are valid hex
     final hexPart = cleanAddress.substring(2);
     return RegExp(r'^[0-9a-fA-F]+$').hasMatch(hexPart);
+  }
+
+  void _showTestWallets(BuildContext context) {
+    final Map<String, String> testWallets = {
+      'Vitalik Buterin (ETH Creator)':
+          '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
+      'Uniswap V3 Router': '0xE592427A0AEce92De3Edee1F18E0157C05861564',
+      'Large DeFi User': '0x47ac0Fb4F2D84898e4D9E7b4DaB3C24507a6D503',
+      'Whale Wallet': '0x8EB8a3b98659Cce290402893d0123abb75E3ab28',
+      'Popular LP Provider': '0x40ec5B33f54e0E8A33A975908C5BA1c14e5BbbDf',
+    };
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            Icon(Icons.science, color: Theme.of(context).colorScheme.primary),
+            const SizedBox(width: 8),
+            const Text('Demo Wallets'),
+          ],
+        ),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Theme.of(context)
+                      .colorScheme
+                      .primaryContainer
+                      .withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.info_outline,
+                        size: 16, color: Theme.of(context).colorScheme.primary),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'These are real wallet addresses with transaction history for testing purposes.',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Choose a wallet to explore:',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w500,
+                    ),
+              ),
+              const SizedBox(height: 12),
+              ...testWallets.entries
+                  .map((entry) => Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: ListTile(
+                          dense: true,
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 4),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            side: BorderSide(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .outline
+                                  .withOpacity(0.3),
+                            ),
+                          ),
+                          leading: CircleAvatar(
+                            radius: 16,
+                            backgroundColor:
+                                Theme.of(context).colorScheme.primaryContainer,
+                            child: Text(
+                              entry.key.substring(0, 1),
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onPrimaryContainer,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          title: Text(
+                            entry.key,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
+                                  fontWeight: FontWeight.w500,
+                                ),
+                          ),
+                          subtitle: Text(
+                            '${entry.value.substring(0, 6)}...${entry.value.substring(38)}',
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      fontFamily: 'monospace',
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurfaceVariant,
+                                    ),
+                          ),
+                          onTap: () {
+                            Navigator.pop(context);
+                            Provider.of<WalletProvider>(context, listen: false)
+                                .connectWalletByAddress(
+                              address: entry.value,
+                              walletType: 'Demo (${entry.key})',
+                            );
+                          },
+                        ),
+                      ))
+                  .toList(),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+        ],
+      ),
+    );
   }
 }

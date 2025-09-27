@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import '../services/web3_service.dart';
 import '../services/wallet_service.dart';
+import '../services/test_data_service.dart';
 
 enum WalletConnectionStatus {
   disconnected,
@@ -105,6 +106,11 @@ class WalletProvider extends ChangeNotifier {
       // This is a read-only connection for portfolio viewing
       _connectedAddress = address.toLowerCase();
       _connectionStatus = WalletConnectionStatus.connected;
+
+      // Check if this is a test wallet and log test data availability
+      if (TestDataService.testWallets.containsKey(_connectedAddress)) {
+        debugPrint('Test wallet detected - rich test data available');
+      }
 
       debugPrint(
           'Connected to $walletType wallet by address: $_connectedAddress');

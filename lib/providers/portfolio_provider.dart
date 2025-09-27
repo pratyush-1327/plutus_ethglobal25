@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import '../services/backend_api_service.dart';
+import '../services/test_data_service.dart';
 
 class PortfolioData {
   final double totalValue;
@@ -100,6 +101,13 @@ class PortfolioProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
+      // Check if this is a test wallet first
+      if (TestDataService.testWallets.containsKey(walletAddress)) {
+        debugPrint('Loading test data for wallet: $walletAddress');
+        _loadTestData(walletAddress);
+        return;
+      }
+
       // Try to fetch from backend API first
       try {
         final portfolioData = await _apiService.getPortfolio(walletAddress);
@@ -176,6 +184,56 @@ class PortfolioProvider extends ChangeNotifier {
       // In real implementation, get address from WalletProvider
       loadPortfolio('0x1234567890abcdef1234567890abcdef12345678');
     }
+  }
+
+  void _loadTestData(String walletAddress) async {
+    await Future.delayed(const Duration(seconds: 1)); // Simulate loading
+
+    final summary = TestDataService.getPortfolioSummary(walletAddress);
+    final tokenHoldings = TestDataService.generateTokenHoldings(walletAddress);
+    final lpPositions = TestDataService.generateLPPositions(walletAddress);
+
+    // Convert test data to our portfolio format
+    final tokens = tokenHoldings
+        .map((token) => TokenBalance(
+              symbol: token.symbol,
+              name: token.name,
+              address: token.address,
+              balance: double.tryParse(token.balance) ?? 0.0,
+              usdValue: token.value,
+              price: token.price,
+              dayChange: token.change24h,
+            ))
+        .toList();
+
+    final lpPositionList = lpPositions
+        .map((pos) => LPPosition(
+              poolAddress: '${pos.token0Address}-${pos.token1Address}',
+              token0Symbol: pos.token0Symbol,
+              token1Symbol: pos.token1Symbol,
+              liquidity: double.tryParse(pos.liquidity) ?? 0.0,
+              usdValue: pos.currentValue,
+              feesEarned: pos.feesValueUsd,
+              unclaimedFees: pos.feesValueUsd,
+              impermanentLoss: pos.impermanentLoss,
+              minPrice: 0.0, // Calculate based on ticks in real implementation
+              maxPrice: 0.0, // Calculate based on ticks in real implementation
+              currentPrice: 0.0, // Get from price feed
+              inRange: pos.inRange,
+            ))
+        .toList();
+
+    _portfolioData = PortfolioData(
+      totalValue: summary.totalValue,
+      dayChange: summary.dayChange,
+      dayChangePercent: summary.dayChangePercent,
+      tokens: tokens,
+      lpPositions: lpPositionList,
+    );
+
+    _lastUpdated = DateTime.now();
+    _isLoading = false;
+    notifyListeners();
   }
 
   Future<void> claimFees(String poolAddress) async {
