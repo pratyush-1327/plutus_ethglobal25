@@ -96,22 +96,28 @@ class PortfolioProvider extends ChangeNotifier {
   }
 
   Future<void> loadPortfolio(String walletAddress) async {
+    debugPrint('🔍 Loading portfolio for address: $walletAddress');
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
       // Check if this is a test wallet first
+      debugPrint('📋 Test wallets available: ${TestDataService.testWallets.keys.toList()}');
       if (TestDataService.testWallets.containsKey(walletAddress)) {
-        debugPrint('Loading test data for wallet: $walletAddress');
+        debugPrint('✅ Test wallet found! Loading test data for: $walletAddress');
         _loadTestData(walletAddress);
         return;
+      } else {
+        debugPrint('❌ Not a test wallet: $walletAddress');
       }
 
       // Try to fetch from backend API first
       try {
+        debugPrint('🌐 Attempting to fetch from backend API...');
         final portfolioData = await _apiService.getPortfolio(walletAddress);
         if (portfolioData != null) {
+          debugPrint('✅ Backend API returned data');
           _portfolioData = portfolioData;
           _lastUpdated = DateTime.now();
           _isLoading = false;
@@ -119,7 +125,7 @@ class PortfolioProvider extends ChangeNotifier {
           return;
         }
       } catch (apiError) {
-        debugPrint('Backend API unavailable, using mock data: $apiError');
+        debugPrint('❌ Backend API unavailable, using mock data: $apiError');
       }
 
       // Fallback to mock data if backend is not available
@@ -187,11 +193,16 @@ class PortfolioProvider extends ChangeNotifier {
   }
 
   void _loadTestData(String walletAddress) async {
+    debugPrint('🧪 Loading test data for: $walletAddress');
     await Future.delayed(const Duration(seconds: 1)); // Simulate loading
 
     final summary = TestDataService.getPortfolioSummary(walletAddress);
     final tokenHoldings = TestDataService.generateTokenHoldings(walletAddress);
     final lpPositions = TestDataService.generateLPPositions(walletAddress);
+
+    debugPrint('📊 Test portfolio summary: totalValue=${summary.totalValue}, dayChange=${summary.dayChangePercent}%');
+    debugPrint('🪙 Test tokens: ${tokenHoldings.length} tokens');
+    debugPrint('🦄 Test LP positions: ${lpPositions.length} positions');
 
     // Convert test data to our portfolio format
     final tokens = tokenHoldings
@@ -233,6 +244,7 @@ class PortfolioProvider extends ChangeNotifier {
 
     _lastUpdated = DateTime.now();
     _isLoading = false;
+    debugPrint('✅ Test data loaded successfully! Portfolio value: ${_portfolioData?.totalValue}');
     notifyListeners();
   }
 

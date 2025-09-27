@@ -3,7 +3,7 @@ import '../providers/portfolio_provider.dart';
 
 class BackendApiService {
   static const String baseUrl =
-      'http://localhost:8000'; // Your Python backend URL
+      'http://localhost:8000'; // Your Python backend URL (updated port)
   late final Dio _dio;
 
   BackendApiService() {

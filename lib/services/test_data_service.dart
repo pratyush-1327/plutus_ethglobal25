@@ -2,7 +2,7 @@
 /// for development and demonstration purposes
 class TestDataService {
   static const Map<String, TestWalletData> testWallets = {
-    '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045': TestWalletData(
+    '0xd8da6bf26964af9d7eed9e03e53415d37aa96045': TestWalletData(
       name: 'Vitalik Buterin',
       description: 'Ethereum co-founder with diverse token holdings',
       estimatedValue: 2500000,
@@ -10,7 +10,7 @@ class TestDataService {
       tokenCount: 15,
       lpPositions: 2,
     ),
-    '0xE592427A0AEce92De3Edee1F18E0157C05861564': TestWalletData(
+    '0xe592427a0aece92de3edee1f18e0157c05861564': TestWalletData(
       name: 'Uniswap V3 Router',
       description: 'Official Uniswap router with massive volume',
       estimatedValue: 50000000,
@@ -18,7 +18,7 @@ class TestDataService {
       tokenCount: 50,
       lpPositions: 25,
     ),
-    '0x47ac0Fb4F2D84898e4D9E7b4DaB3C24507a6D503': TestWalletData(
+    '0x47ac0fb4f2d84898e4d9e7b4dab3c24507a6d503': TestWalletData(
       name: 'Large DeFi User',
       description: 'Active liquidity provider across multiple pools',
       estimatedValue: 750000,
@@ -26,7 +26,7 @@ class TestDataService {
       tokenCount: 8,
       lpPositions: 12,
     ),
-    '0x8EB8a3b98659Cce290402893d0123abb75E3ab28': TestWalletData(
+    '0x8eb8a3b98659cce290402893d0123abb75e3ab28': TestWalletData(
       name: 'Whale Wallet',
       description: 'High-value holder with long-term positions',
       estimatedValue: 12000000,
@@ -34,7 +34,7 @@ class TestDataService {
       tokenCount: 20,
       lpPositions: 8,
     ),
-    '0x40ec5B33f54e0E8A33A975908C5BA1c14e5BbbDf': TestWalletData(
+    '0x40ec5b33f54e0e8a33a975908c5ba1c14e5bbbdf': TestWalletData(
       name: 'Popular LP Provider',
       description: 'Focused on yield farming and liquidity provision',
       estimatedValue: 180000,

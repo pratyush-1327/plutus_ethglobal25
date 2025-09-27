@@ -19,6 +19,16 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    // Listen for wallet connection changes and load portfolio
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkAndLoadPortfolio();
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Also check when dependencies change (like when wallet connects)
     _checkAndLoadPortfolio();
   }
 
@@ -28,6 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
         Provider.of<PortfolioProvider>(context, listen: false);
 
     if (walletProvider.isConnected && walletProvider.connectedAddress != null) {
+      debugPrint('Loading portfolio for: ${walletProvider.connectedAddress}');
       portfolioProvider.loadPortfolio(walletProvider.connectedAddress!);
     }
   }
