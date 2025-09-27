@@ -149,10 +149,12 @@ class _SettingsScreenState extends State<SettingsScreen>
                     ],
                   ),
                 ),
-                child: const Icon(
-                  Icons.account_circle_rounded,
-                  size: 50,
-                  color: Colors.white,
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Image.asset(
+                    'assets/images/logo.png',
+                    fit: BoxFit.contain,
+                  ),
                 ),
               ),
               const SizedBox(width: 20),
@@ -161,7 +163,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'DeFi Explorer',
+                      'Plutus User',
                       style:
                           Theme.of(context).textTheme.headlineSmall?.copyWith(
                                 fontWeight: FontWeight.bold,
@@ -188,7 +190,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        'Premium User',
+                        'Premium Wealth Manager',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               color: AppTheme.successGradientStart,
                               fontWeight: FontWeight.w600,

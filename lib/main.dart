@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => PortfolioProvider()),
       ],
       child: MaterialApp(
-        title: 'ETH Portfolio Tracker',
+        title: 'Plutus - DeFi Portfolio Tracker',
         theme: AppTheme.lightTheme,
         darkTheme: AppTheme.darkTheme,
         themeMode: ThemeMode.system,

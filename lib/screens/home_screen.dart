@@ -30,18 +30,18 @@ class _HomeScreenState extends State<HomeScreen>
       duration: const Duration(milliseconds: 2000),
       vsync: this,
     );
-    
+
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeOut),
     );
-    
+
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.3),
       end: Offset.zero,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
-    
+
     _controller.forward();
-    
+
     // Auto-load data when screen loads
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadInitialData();
@@ -57,7 +57,7 @@ class _HomeScreenState extends State<HomeScreen>
   void _loadInitialData() {
     final walletProvider = Provider.of<WalletProvider>(context, listen: false);
     final portfolioProvider = Provider.of<PortfolioProvider>(context, listen: false);
-    
+
     // Auto-refresh portfolio if wallet is connected
     if (walletProvider.isConnected && walletProvider.connectedAddress != null) {
       portfolioProvider.loadPortfolio(walletProvider.connectedAddress!);
@@ -82,23 +82,51 @@ class _HomeScreenState extends State<HomeScreen>
 
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
-      title: AnimatedTextKit(
-        animatedTexts: [
-          ColorizeAnimatedText(
-            'Portfolio Tracker',
-            textStyle: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ) ?? const TextStyle(),
-            colors: [
-              AppTheme.primaryColor,
-              AppTheme.secondaryColor,
-              AppTheme.accentColor,
-              AppTheme.primaryColor,
-            ],
-            speed: const Duration(milliseconds: 200),
+      title: Row(
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            margin: const EdgeInsets.only(right: 12),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              boxShadow: [
+                BoxShadow(
+                  color: AppTheme.primaryColor.withOpacity(0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.asset(
+                'assets/images/logo.png',
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          Expanded(
+            child: AnimatedTextKit(
+              animatedTexts: [
+                ColorizeAnimatedText(
+                  'Plutus',
+                  textStyle: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ) ?? const TextStyle(),
+                  colors: [
+                    AppTheme.primaryColor,
+                    AppTheme.secondaryColor,
+                    AppTheme.accentColor,
+                    AppTheme.primaryColor,
+                  ],
+                  speed: const Duration(milliseconds: 200),
+                ),
+              ],
+              totalRepeatCount: 1,
+            ),
           ),
         ],
-        totalRepeatCount: 1,
       ),
       actions: [
         Consumer<WalletProvider>(
@@ -202,40 +230,72 @@ class _HomeScreenState extends State<HomeScreen>
       ),
       child: Column(
         children: [
+          // Plutus Logo
           Container(
             width: 120,
             height: 120,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: Colors.white.withOpacity(0.2),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 15,
+                  offset: const Offset(0, 5),
+                ),
+              ],
             ),
-            child: const Icon(
-              Icons.account_balance_wallet_rounded,
-              size: 60,
-              color: Colors.white,
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Image.asset(
+                'assets/images/logo.png',
+                fit: BoxFit.contain,
+              ),
             ),
           ),
           const SizedBox(height: 24),
+
+          // Plutus Brand Name
           AnimatedTextKit(
             animatedTexts: [
               TypewriterAnimatedText(
-                'Welcome to DeFi Portfolio Tracking',
-                textStyle: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                'PLUTUS',
+                textStyle: Theme.of(context).textTheme.displayMedium?.copyWith(
                       color: Colors.white,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 3.0,
                     ) ?? const TextStyle(),
-                speed: const Duration(milliseconds: 50),
+                speed: const Duration(milliseconds: 100),
               ),
             ],
             totalRepeatCount: 1,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
+
+          // Tagline
+          AnimatedTextKit(
+            animatedTexts: [
+              FadeAnimatedText(
+                'Your DeFi Wealth Manager',
+                textStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      color: Colors.white.withOpacity(0.9),
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: 1.0,
+                    ) ?? const TextStyle(),
+                duration: const Duration(milliseconds: 2000),
+              ),
+            ],
+            totalRepeatCount: 1,
+          ),
+          const SizedBox(height: 20),
+
+          // Description
           Text(
             'Track your Ethereum portfolio, monitor Uniswap LP positions, and analyze your DeFi performance with real-time data and beautiful visualizations.',
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: Colors.white.withOpacity(0.9),
-                  height: 1.5,
+                  color: Colors.white.withOpacity(0.8),
+                  height: 1.6,
                 ),
           ),
         ],
@@ -280,7 +340,7 @@ class _HomeScreenState extends State<HomeScreen>
           ...features.asMap().entries.map((entry) {
             final index = entry.key;
             final feature = entry.value;
-            
+
             return AnimationConfiguration.staggeredList(
               position: index,
               duration: const Duration(milliseconds: 375),
@@ -543,10 +603,10 @@ class _HomeScreenState extends State<HomeScreen>
   void _refreshPortfolio() {
     final walletProvider = Provider.of<WalletProvider>(context, listen: false);
     final portfolioProvider = Provider.of<PortfolioProvider>(context, listen: false);
-    
+
     if (walletProvider.connectedAddress != null) {
       portfolioProvider.loadPortfolio(walletProvider.connectedAddress!);
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('Refreshing portfolio...'),
@@ -562,7 +622,7 @@ class _HomeScreenState extends State<HomeScreen>
 
   void _showWalletInfo() {
     final walletProvider = Provider.of<WalletProvider>(context, listen: false);
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(

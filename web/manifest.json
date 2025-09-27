@@ -1,11 +1,11 @@
 {
-    "name": "eth_portfolio_tracker",
-    "short_name": "eth_portfolio_tracker",
+    "name": "Plutus - DeFi Portfolio Tracker",
+    "short_name": "Plutus",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#6C63FF",
+    "theme_color": "#6C63FF",
+    "description": "Your DeFi Wealth Manager - Track Ethereum portfolio and Uniswap LP positions",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
