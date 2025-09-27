@@ -104,9 +104,21 @@ class _HomeScreenState extends State<HomeScreen> {
             return const WalletConnectionWidget();
           }
 
+          // Trigger portfolio loading when wallet is connected
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            final portfolioProvider =
+                Provider.of<PortfolioProvider>(context, listen: false);
+            if (walletProvider.connectedAddress != null) {
+              portfolioProvider.loadPortfolio(walletProvider.connectedAddress!);
+            }
+          });
+
           return RefreshIndicator(
             onRefresh: () async {
-              Provider.of<PortfolioProvider>(context, listen: false).refresh();
+              if (walletProvider.connectedAddress != null) {
+                Provider.of<PortfolioProvider>(context, listen: false)
+                    .loadPortfolio(walletProvider.connectedAddress!);
+              }
             },
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),

@@ -97,6 +97,7 @@ class PortfolioProvider extends ChangeNotifier {
 
   Future<void> loadPortfolio(String walletAddress) async {
     debugPrint('🔍 Loading portfolio for address: $walletAddress');
+    _currentWalletAddress = walletAddress;
     _isLoading = true;
     _error = null;
     notifyListeners();
@@ -114,18 +115,22 @@ class PortfolioProvider extends ChangeNotifier {
 
       // Try to fetch from backend API first
       try {
-        debugPrint('🌐 Attempting to fetch from backend API...');
+        debugPrint(
+            '🌐 Attempting to fetch from backend API for: $walletAddress');
         final portfolioData = await _apiService.getPortfolio(walletAddress);
         if (portfolioData != null) {
-          debugPrint('✅ Backend API returned data');
+          debugPrint(
+              '✅ Backend API returned data - Value: \$${portfolioData.totalValue}, Change: ${portfolioData.dayChangePercent}%');
           _portfolioData = portfolioData;
           _lastUpdated = DateTime.now();
           _isLoading = false;
           notifyListeners();
           return;
+        } else {
+          debugPrint('❌ Backend API returned null data');
         }
       } catch (apiError) {
-        debugPrint('❌ Backend API unavailable, using mock data: $apiError');
+        debugPrint('❌ Backend API error: $apiError');
       }
 
       // Fallback to mock data if backend is not available
@@ -184,15 +189,16 @@ class PortfolioProvider extends ChangeNotifier {
     }
   }
 
+  String? _currentWalletAddress;
+
   void refresh() {
-    if (_portfolioData != null) {
-      // Refresh with current wallet address
-      // In real implementation, get address from WalletProvider
-      loadPortfolio('0x1234567890abcdef1234567890abcdef12345678');
+    if (_currentWalletAddress != null) {
+      loadPortfolio(_currentWalletAddress!);
     }
   }
 
   void _loadTestData(String walletAddress) async {
+    _currentWalletAddress = walletAddress;
     debugPrint('🧪 Loading test data for: $walletAddress');
     await Future.delayed(const Duration(seconds: 1)); // Simulate loading
 
