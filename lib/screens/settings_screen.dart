@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:provider/provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
+import '../providers/wallet_provider.dart';
+import 'wallet_connect_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -231,6 +235,11 @@ class _SettingsScreenState extends State<SettingsScreen>
                     ),
               ),
               const SizedBox(height: 16),
+              Consumer<WalletProvider>(
+                builder: (context, walletProvider, child) {
+                  return _buildNetworkSelector(walletProvider);
+                },
+              ),
               _buildSwitchTile(
                 'Dark Mode',
                 'Switch between light and dark theme',
@@ -255,6 +264,144 @@ class _SettingsScreenState extends State<SettingsScreen>
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNetworkSelector(WalletProvider walletProvider) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        border: Border.all(color: Theme.of(context).dividerColor),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: ListTile(
+        leading: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Color(int.parse(
+                    '0xFF${walletProvider.selectedNetwork.colorHex.substring(2)}'))
+                .withOpacity(0.2),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(
+            Icons.language,
+            color: Color(int.parse(
+                '0xFF${walletProvider.selectedNetwork.colorHex.substring(2)}')),
+          ),
+        ),
+        title: Text(
+          'Network',
+          style: GoogleFonts.inter(
+            fontWeight: FontWeight.w600,
+            color: AppTheme.textPrimary,
+          ),
+        ),
+        subtitle: Text(
+          walletProvider.selectedNetwork.name,
+          style: GoogleFonts.inter(
+            color: AppTheme.textSecondary,
+          ),
+        ),
+        trailing: const Icon(Icons.keyboard_arrow_right),
+        onTap: () => _showNetworkSelector(context, walletProvider),
+      ),
+    );
+  }
+
+  void _showNetworkSelector(
+      BuildContext context, WalletProvider walletProvider) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.5,
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(20),
+              child: Row(
+                children: [
+                  Text(
+                    'Select Network',
+                    style: GoogleFonts.inter(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.textPrimary,
+                    ),
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: ListView.builder(
+                itemCount: SupportedNetwork.values.length,
+                itemBuilder: (context, index) {
+                  final network = SupportedNetwork.values[index];
+                  final isSelected = network == walletProvider.selectedNetwork;
+
+                  return ListTile(
+                    leading: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Color(int.parse(
+                                '0xFF${network.colorHex.substring(2)}'))
+                            .withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        Icons.language,
+                        color: Color(
+                            int.parse('0xFF${network.colorHex.substring(2)}')),
+                      ),
+                    ),
+                    title: Text(
+                      network.name,
+                      style: GoogleFonts.inter(
+                        fontWeight:
+                            isSelected ? FontWeight.w600 : FontWeight.normal,
+                        color: isSelected
+                            ? AppTheme.primaryColor
+                            : AppTheme.textPrimary,
+                      ),
+                    ),
+                    subtitle: Text(
+                      'Chain ID: ${network.chainId}',
+                      style: GoogleFonts.inter(
+                        color: AppTheme.textSecondary,
+                      ),
+                    ),
+                    trailing: isSelected
+                        ? Icon(Icons.check_circle, color: AppTheme.primaryColor)
+                        : null,
+                    onTap: () {
+                      walletProvider.switchNetwork(network);
+                      Navigator.pop(context);
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Switched to ${network.name}'),
+                          backgroundColor: AppTheme.primaryColor,
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );

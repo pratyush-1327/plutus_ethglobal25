@@ -63,18 +63,19 @@ class PortfolioService:
     def __init__(self, uniswap_service: UniswapService):
         self.uniswap_service = uniswap_service
 
-    def get_portfolio_data(self, address: str) -> Dict:
+    def get_portfolio_data(self, address: str, chain_id: int = 1) -> Dict:
         """
-        Get complete portfolio data for a wallet address
+        Get complete portfolio data for a wallet address on specific chain
 
         Args:
             address: Ethereum wallet address
+            chain_id: Blockchain network ID (1=Ethereum, 137=Polygon, 10=Optimism)
 
         Returns:
             Complete portfolio data with positions and P&L
         """
         try:
-            logger.info(f"Getting portfolio data for address: {address}")
+            logger.info(f"Getting portfolio data for address: {address} on chain {chain_id}")
 
             # Define known test wallets with mock data
             test_wallets = {
@@ -89,30 +90,26 @@ class PortfolioService:
 
             # Check if this is a test wallet
             if address_lower in test_wallets:
-                logger.info(f"Using mock data for test wallet: {address}")
-                return self._get_mock_portfolio_data(address)
+                logger.info(f"Using mock data for test wallet: {address} on chain {chain_id}")
+                return self._get_mock_portfolio_data(address, chain_id)
             else:
-                logger.info(f"Real wallet detected: {address} - returning minimal data")
-                return self._get_real_wallet_data(address)
+                logger.info(f"Real wallet detected: {address} on chain {chain_id} - returning minimal data")
+                return self._get_real_wallet_data(address, chain_id)
 
         except Exception as e:
             logger.error(f"Error getting portfolio data for {address}: {e}")
             raise
 
-    def _get_mock_portfolio_data(self, address: str) -> Dict:
-        """Return rich mock data for test wallets"""
-        # Fetch user positions from Uniswap subgraph (mock data)
+    def _get_mock_portfolio_data(self, address: str, chain_id: int) -> Dict:
+        """Return rich mock data for test wallets with chain-specific data"""
+        # For demo, use Uniswap service but adjust for chain
         raw_positions = self.uniswap_service.get_user_positions(address)
 
         if not raw_positions:
-            return {
-                "address": address,
-                "total_value_usd": 0.0,
-                "pnl_24h_percent": 0.0,
-                "pnl_24h_usd": 0.0,
-                "positions": [],
-                "timestamp": datetime.utcnow().isoformat()
-            }
+            return self._get_empty_portfolio(address, chain_id)
+
+        # Get chain-specific tokens and values
+        base_multiplier = self._get_chain_multiplier(chain_id)
 
         # Extract unique token addresses
         token_addresses = set()
@@ -130,11 +127,13 @@ class PortfolioService:
 
         for raw_pos in raw_positions:
             position = self._calculate_position_value(raw_pos, token_prices)
+            # Adjust value based on chain
+            position.value_usd *= base_multiplier
             positions.append(position)
             total_value_current += position.value_usd
 
             # Calculate 24h ago value for P&L
-            value_24h_ago = self._calculate_position_value_24h_ago(raw_pos, token_prices)
+            value_24h_ago = self._calculate_position_value_24h_ago(raw_pos, token_prices) * base_multiplier
             total_value_24h_ago += value_24h_ago
 
         # Calculate P&L
@@ -147,10 +146,12 @@ class PortfolioService:
             "pnl_24h_percent": pnl_24h_percent,
             "pnl_24h_usd": pnl_24h_usd,
             "positions": [pos.to_dict() for pos in positions],
+            "chain_id": chain_id,
+            "chain_name": self._get_chain_name(chain_id),
             "timestamp": datetime.utcnow().isoformat()
         }
 
-    def _get_real_wallet_data(self, address: str) -> Dict:
+    def _get_real_wallet_data(self, address: str, chain_id: int) -> Dict:
         """Return minimal/realistic data for real wallets"""
         return {
             "address": address,
@@ -158,8 +159,41 @@ class PortfolioService:
             "pnl_24h_percent": -0.5,  # Small realistic change
             "pnl_24h_usd": -0.01,
             "positions": [],  # No LP positions for your real wallet
+            "chain_id": chain_id,
+            "chain_name": self._get_chain_name(chain_id),
             "timestamp": datetime.utcnow().isoformat()
         }
+
+    def _get_empty_portfolio(self, address: str, chain_id: int) -> Dict:
+        """Return empty portfolio structure"""
+        return {
+            "address": address,
+            "total_value_usd": 0.0,
+            "pnl_24h_percent": 0.0,
+            "pnl_24h_usd": 0.0,
+            "positions": [],
+            "chain_id": chain_id,
+            "chain_name": self._get_chain_name(chain_id),
+            "timestamp": datetime.utcnow().isoformat()
+        }
+
+    def _get_chain_multiplier(self, chain_id: int) -> float:
+        """Get value multiplier for different chains"""
+        multipliers = {
+            1: 1.0,    # Ethereum - full value
+            137: 0.3,  # Polygon - 30% of Ethereum value
+            10: 0.6    # Optimism - 60% of Ethereum value
+        }
+        return multipliers.get(chain_id, 1.0)
+
+    def _get_chain_name(self, chain_id: int) -> str:
+        """Get chain name from chain ID"""
+        names = {
+            1: "Ethereum",
+            137: "Polygon",
+            10: "Optimism"
+        }
+        return names.get(chain_id, "Unknown")
 
     def _calculate_position_value(self, raw_position: SubgraphPosition, token_prices: Dict[str, TokenPrice]) -> Position:
         """

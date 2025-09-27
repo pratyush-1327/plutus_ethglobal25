@@ -4,7 +4,7 @@ import '../providers/portfolio_provider.dart';
 
 class BackendApiService {
   static const String baseUrl =
-      'http://localhost:8000'; // Your Python backend URL (updated port)
+      'http://localhost:8000'; // Your Python backend URL
   late final Dio _dio;
 
   BackendApiService() {
@@ -18,10 +18,15 @@ class BackendApiService {
     ));
   }
 
-  Future<PortfolioData?> getPortfolio(String walletAddress) async {
+  Future<PortfolioData?> getPortfolio(String walletAddress,
+      {int chainId = 1}) async {
     try {
-      debugPrint('🌐 API: Fetching portfolio for $walletAddress from $baseUrl');
-      final response = await _dio.get('/portfolio/$walletAddress');
+      debugPrint(
+          '🌐 API: Fetching portfolio for $walletAddress on chain $chainId from $baseUrl');
+      final response = await _dio.get(
+        '/portfolio/$walletAddress',
+        queryParameters: {'chain_id': chainId},
+      );
 
       debugPrint('🌐 API: Response status: ${response.statusCode}');
       if (response.statusCode == 200) {
@@ -41,6 +46,182 @@ class BackendApiService {
       throw ApiException('Unexpected error: $e');
     }
     return null;
+  }
+
+  Future<Map<String, dynamic>> getAnalytics(
+    String walletAddress, {
+    String timeframe = '7d',
+    int chainId = 1,
+  }) async {
+    try {
+      debugPrint('🌐 API: Fetching analytics for $walletAddress');
+      final response = await _dio.get(
+        '/analytics/$walletAddress',
+        queryParameters: {
+          'timeframe': timeframe,
+          'chain_id': chainId,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return response.data;
+      }
+    } on DioException catch (e) {
+      debugPrint('❌ API: Failed to fetch analytics - ${e.message}');
+      throw ApiException('Failed to fetch analytics: ${e.message}');
+    } catch (e) {
+      debugPrint('❌ API: Unexpected error - $e');
+      throw ApiException('Unexpected error: $e');
+    }
+    return {};
+  }
+
+  Future<Map<String, dynamic>> getPerformance(String walletAddress,
+      {int chainId = 1}) async {
+    try {
+      debugPrint('🌐 API: Fetching performance for $walletAddress');
+      final response = await _dio.get(
+        '/performance/$walletAddress',
+        queryParameters: {'chain_id': chainId},
+      );
+
+      if (response.statusCode == 200) {
+        return response.data;
+      }
+    } on DioException catch (e) {
+      debugPrint('❌ API: Failed to fetch performance - ${e.message}');
+      throw ApiException('Failed to fetch performance: ${e.message}');
+    } catch (e) {
+      debugPrint('❌ API: Unexpected error - $e');
+      throw ApiException('Unexpected error: $e');
+    }
+    return {};
+  }
+
+  Future<Map<String, dynamic>> simulateSwap({
+    required String tokenIn,
+    required String tokenOut,
+    required String amountIn,
+    required double slippage,
+    int chainId = 1,
+    String? walletAddress,
+  }) async {
+    try {
+      debugPrint('🌐 API: Simulating swap $amountIn $tokenIn -> $tokenOut');
+      final response = await _dio.post('/swap/simulate', data: {
+        'wallet_address':
+            walletAddress ?? '0x0000000000000000000000000000000000000000',
+        'token_in': tokenIn,
+        'token_out': tokenOut,
+        'amount_in': amountIn,
+        'slippage': slippage,
+        'chain_id': chainId,
+      });
+
+      if (response.statusCode == 200) {
+        return response.data;
+      }
+    } on DioException catch (e) {
+      debugPrint('❌ API: Failed to simulate swap - ${e.message}');
+      throw ApiException('Failed to simulate swap: ${e.message}');
+    } catch (e) {
+      debugPrint('❌ API: Unexpected error - $e');
+      throw ApiException('Unexpected error: $e');
+    }
+    return {};
+  }
+
+  Future<Map<String, dynamic>> simulateAddLiquidity({
+    required String token0,
+    required String token1,
+    required String amount0,
+    required String amount1,
+    required int tickLower,
+    required int tickUpper,
+    int chainId = 1,
+    String? walletAddress,
+  }) async {
+    try {
+      debugPrint('🌐 API: Simulating add liquidity $token0/$token1');
+      final response = await _dio.post('/liquidity/add/simulate', data: {
+        'wallet_address':
+            walletAddress ?? '0x0000000000000000000000000000000000000000',
+        'token0': token0,
+        'token1': token1,
+        'amount0': amount0,
+        'amount1': amount1,
+        'tick_lower': tickLower,
+        'tick_upper': tickUpper,
+        'chain_id': chainId,
+      });
+
+      if (response.statusCode == 200) {
+        return response.data;
+      }
+    } on DioException catch (e) {
+      debugPrint('❌ API: Failed to simulate add liquidity - ${e.message}');
+      throw ApiException('Failed to simulate add liquidity: ${e.message}');
+    } catch (e) {
+      debugPrint('❌ API: Unexpected error - $e');
+      throw ApiException('Unexpected error: $e');
+    }
+    return {};
+  }
+
+  Future<Map<String, dynamic>> getPopularTokens({int chainId = 1}) async {
+    try {
+      debugPrint('🌐 API: Fetching popular tokens for chain $chainId');
+      final response = await _dio.get('/tokens/popular/$chainId');
+
+      if (response.statusCode == 200) {
+        return response.data;
+      }
+    } on DioException catch (e) {
+      debugPrint('❌ API: Failed to fetch popular tokens - ${e.message}');
+      throw ApiException('Failed to fetch popular tokens: ${e.message}');
+    } catch (e) {
+      debugPrint('❌ API: Unexpected error - $e');
+      throw ApiException('Unexpected error: $e');
+    }
+    return {};
+  }
+
+  Future<Map<String, dynamic>> getSupportedNetworks() async {
+    try {
+      debugPrint('🌐 API: Fetching supported networks');
+      final response = await _dio.get('/networks');
+
+      if (response.statusCode == 200) {
+        return response.data;
+      }
+    } on DioException catch (e) {
+      debugPrint('❌ API: Failed to fetch networks - ${e.message}');
+      throw ApiException('Failed to fetch networks: ${e.message}');
+    } catch (e) {
+      debugPrint('❌ API: Unexpected error - $e');
+      throw ApiException('Unexpected error: $e');
+    }
+    return {};
+  }
+
+  Future<Map<String, dynamic>> claimPositionFees(
+      String positionId, String walletAddress) async {
+    try {
+      debugPrint('🌐 API: Claiming fees for position $positionId');
+      final response = await _dio.post('/positions/$positionId/claim',
+          queryParameters: {'wallet_address': walletAddress});
+
+      if (response.statusCode == 200) {
+        return response.data;
+      }
+    } on DioException catch (e) {
+      debugPrint('❌ API: Failed to claim fees - ${e.message}');
+      throw ApiException('Failed to claim fees: ${e.message}');
+    } catch (e) {
+      debugPrint('❌ API: Unexpected error - $e');
+      throw ApiException('Unexpected error: $e');
+    }
+    return {};
   }
 
   Future<List<TokenBalance>> getTokenBalances(String walletAddress) async {

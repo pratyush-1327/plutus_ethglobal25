@@ -4,9 +4,10 @@ import 'package:glassmorphism/glassmorphism.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import '../theme/app_theme.dart';
 import 'home_screen.dart';
-import 'portfolio_screen.dart';
 import 'analytics_screen.dart';
 import 'settings_screen.dart';
+import 'swap_screen.dart';
+import 'liquidity_screen.dart';
 
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
@@ -18,19 +19,19 @@ class MainNavigationScreen extends StatefulWidget {
 class _MainNavigationScreenState extends State<MainNavigationScreen>
     with TickerProviderStateMixin {
   int _currentIndex = 0;
-  late AnimationController _animationController;
-  late Animation<double> _animation;
 
   final List<IconData> _iconList = [
     Icons.home_rounded,
-    Icons.pie_chart_rounded,
+    Icons.swap_horiz_rounded,
+    Icons.water_drop_rounded,
     Icons.analytics_rounded,
     Icons.settings_rounded,
   ];
 
   final List<String> _titleList = [
     'Portfolio',
-    'Positions',
+    'Swap',
+    'Liquidity',
     'Analytics',
     'Settings',
   ];
@@ -40,21 +41,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
   @override
   void initState() {
     super.initState();
-    _animationController = AnimationController(
-      duration: const Duration(seconds: 1),
-      vsync: this,
-    )..repeat();
-
-    _animation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeInOut,
-      ),
-    );
-
     _screens = [
       const HomeScreen(),
-      const PortfolioScreen(),
+      const SwapScreen(),
+      const LiquidityScreen(),
       const AnalyticsScreen(),
       const SettingsScreen(),
     ];
@@ -62,7 +52,6 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
 
   @override
   void dispose() {
-    _animationController.dispose();
     super.dispose();
   }
 
@@ -91,8 +80,6 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
           ),
         ),
       ),
-      floatingActionButton: _buildFloatingActionButton(),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: _buildBottomNavigationBar(),
     );
   }
@@ -149,102 +136,6 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
           onPressed: () {},
         ),
       ],
-    );
-  }
-
-  Widget _buildFloatingActionButton() {
-    return AnimatedBuilder(
-      animation: _animation,
-      builder: (context, child) {
-        return Transform.rotate(
-          angle: _animation.value * 2 * 3.14159,
-          child: Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: LinearGradient(
-                colors: [
-                  AppTheme.primaryColor,
-                  AppTheme.secondaryColor,
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: AppTheme.primaryColor.withOpacity(0.3),
-                  blurRadius: 20,
-                  offset: const Offset(0, 8),
-                ),
-              ],
-            ),
-            child: FloatingActionButton(
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              onPressed: _onFabTap,
-              child: Icon(
-                _getFabIcon(),
-                color: Colors.white,
-                size: 28,
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  IconData _getFabIcon() {
-    switch (_currentIndex) {
-      case 0:
-        return Icons.refresh_rounded;
-      case 1:
-        return Icons.add_rounded;
-      case 2:
-        return Icons.insights_rounded;
-      case 3:
-        return Icons.tune_rounded;
-      default:
-        return Icons.refresh_rounded;
-    }
-  }
-
-  void _onFabTap() {
-    switch (_currentIndex) {
-      case 0:
-        // Refresh portfolio
-        _showSnackBar('Refreshing portfolio...');
-        break;
-      case 1:
-        // Add position
-        _showSnackBar('Add new position');
-        break;
-      case 2:
-        // Export analytics
-        _showSnackBar('Export analytics');
-        break;
-      case 3:
-        // Advanced settings
-        _showSnackBar('Advanced settings');
-        break;
-    }
-  }
-
-  void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          message,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Colors.white,
-              ),
-        ),
-        backgroundColor: AppTheme.primaryColor,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        margin: const EdgeInsets.all(16),
-      ),
     );
   }
 
@@ -312,7 +203,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
         },
         backgroundColor: Colors.transparent,
         activeIndex: _currentIndex,
-        gapLocation: GapLocation.center,
+        gapLocation: GapLocation.none,
         notchSmoothness: NotchSmoothness.softEdge,
         leftCornerRadius: 30,
         rightCornerRadius: 30,

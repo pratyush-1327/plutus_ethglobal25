@@ -11,6 +11,13 @@ class AppTheme {
   static const surfaceDark = Color(0xFF1A1A2E); // Dark Purple
   static const surfaceLight = Color(0xFFFFFFFF); // Pure White
 
+  // Additional Theme Colors
+  static const backgroundColor = Color(0xFFF8F9FA);
+  static const cardBackground = Color(0xFFFFFFFF);
+  static const borderColor = Color(0xFFE2E8F0);
+  static const textPrimary = Color(0xFF1A1A2E);
+  static const textSecondary = Color(0xFF4A5568);
+
   // Gradient Colors
   static const gradientStart = Color(0xFF667eea);
   static const gradientEnd = Color(0xFF764ba2);

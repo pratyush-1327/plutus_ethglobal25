@@ -60,7 +60,10 @@ class _HomeScreenState extends State<HomeScreen>
 
     // Auto-refresh portfolio if wallet is connected
     if (walletProvider.isConnected && walletProvider.connectedAddress != null) {
-      portfolioProvider.loadPortfolio(walletProvider.connectedAddress!);
+      portfolioProvider.loadPortfolio(
+        walletProvider.connectedAddress!,
+        chainId: walletProvider.selectedNetwork.chainId,
+      );
     }
   }
 
@@ -605,7 +608,10 @@ class _HomeScreenState extends State<HomeScreen>
     final portfolioProvider = Provider.of<PortfolioProvider>(context, listen: false);
 
     if (walletProvider.connectedAddress != null) {
-      portfolioProvider.loadPortfolio(walletProvider.connectedAddress!);
+      portfolioProvider.loadPortfolio(
+        walletProvider.connectedAddress!,
+        chainId: walletProvider.selectedNetwork.chainId,
+      );
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
