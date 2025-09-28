@@ -8,7 +8,7 @@ A comprehensive, real-time DeFi portfolio management platform built with Flutter
 
 Plutus transforms traditional portfolio tracking into a dynamic, real-time DeFi experience. Built for the modern DeFi user, it provides comprehensive tools for portfolio management, token swapping, liquidity provision, and advanced analytics across multiple blockchain networks.
 
-**Submission for Polygon Hackathon** - Complete DeFi portfolio solution with real-time data integration.
+NOTE - FIRST, the backend was pushed as whole in this repo but it caused some incompatibility while submission, now i have deleted it and deleted again.. https://github.com/pratyush-1327/plutus_backend
 
 ## ✨ Key Features
 
